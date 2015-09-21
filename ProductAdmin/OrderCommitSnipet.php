@@ -528,28 +528,26 @@ $msg.='</div>
     $url=mysql_escape_string($_GET['qq']);
     ?>
     <div class="card">
-<h3 class="card-form-h3">Заказ № <?php echo $order_id; ?> </h3>
-<h3  class="card-form-h3">
-    Статус: <?php
-    if ($status == 0) echo "В обработке";
-    if ($status == 1) echo "Оплачен";
-    if ($status == 2) echo "Доставлен";
-    ?>
-</h3>
-<div class="cart_products">
-    <div class="top1">
-        <h3  class="card-form-h3">Дата размещения: <span class="black"><?php
+        <h3 class="card-form-h3">Заказ № <?php echo $order_id; ?> </h3>
+        <label  class="card-form-label">
+            Статус: <?php
+            if ($status == 0) echo "В обработке";
+            if ($status == 1) echo "Оплачен";
+            if ($status == 2) echo "Доставлен";
+            ?>
+        </label>
+
+        <label  class="card-form-label">Дата размещения: <span class="black"><?php
         $order_date = strtotime($order_date);
         $order_date = date("d.m.Y h:m", $order_date);
-        echo $order_date; ?></span></h3>
-        <h3  class="card-form-h3">Номер заказа: <?php echo $order_id; ?> </h3>
-        <h3  class="card-form-h3">Дата доставки: <?php
-        
+        echo $order_date; ?></span></label>
+        <label  class="card-form-label">Номер заказа: <?php echo $order_id; ?> </label>
+        <label  class="card-form-label">Дата доставки: <?php
+
         $delivery_date = strtotime($delivery_date);
         $delivery_date = date("d.m.Y h:m", $delivery_date);
-        echo $delivery_date; ?></h3>
-        
-    </div>
+        echo $delivery_date; ?></label>
+
     <div class="card-product-list">
         <?php
         $sql = "select * from s_purchases where order_id=" . $order_id;
@@ -557,7 +555,7 @@ $msg.='</div>
             ?>
             <div class="w-row card-products-row">
                 <div class="w-col w-col-2 w-col-small-2 w-col-tiny-2 card-img-column">
-                    <img class="card-product-img" src="<?php echo upload_dir . $row['img']; ?>g">
+                    <img class="card-product-img" src="<?php echo upload_dir . $row['img']; ?>">
                 </div>
                 <div class="w-col w-col-3 w-col-small-3 w-col-tiny-3 card-column-title">
                     <div>Название букета “<?php echo $row['product_name']; ?>”</div>
@@ -566,7 +564,7 @@ $msg.='</div>
                     <div><?php echo $row['price']; ?> руб.
                     </div>
                 </div>
-                <div class="w-col w-col-2 w-col-small-2 w-col-tiny-2 card-column-count2">
+                <div class="w-col w-col-2 w-col-small-2 w-col-tiny-2 card-column-count">
                     <div><?php echo $row['amount']; ?> шт.</div>
                 </div>
                 <div class="w-col w-col-2 w-col-small-2 w-col-tiny-2 card-column-count">
@@ -582,18 +580,16 @@ $msg.='</div>
             <?php
         }
         ?>
+         <div class="card-product-itog">
+            <div>Итого к оплате: <span class="card-itog"><?php echo $summa; ?> руб.</span></div>
+        </div>
     </div>
-    <div class="bottom">
-        <div class="left">
+
+
             <?php
             //Код купона на скидку:
             //if(isset($coupon_code)) echo $coupon_code;
-?>
-        </div>
-        <div class="right">
-
-            <?php
-            /*
+/*
             $skidka=0;
             if(isset($coupon_code) and (isset($coupon_value))and(($coupon_code+0)>0))
             {
@@ -606,12 +602,7 @@ $msg.='</div>
             }
 */
             ?>
-            <span>Итого к оплате</span> <?php
-            //echo $summa-$skidka;
-            echo $summa;
-            ?> руб.
-        </div>
-    </div>
+
 
 
 

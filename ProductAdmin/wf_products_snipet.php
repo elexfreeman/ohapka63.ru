@@ -92,7 +92,10 @@ foreach ($modx->query($sql) as $row) {
         <?php
     }*/
     $sk++;
+    /*todo: Сделать модальное окно для карточки овара. Взять с сайта 24bukety.ru*/
+
     ?>
+
     <!-- Modal -->
 <div style="display: none"  class="modal fade modalProduct" id="ProductModal_<?php echo $row['id']; ?>" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog  modal-lg">
