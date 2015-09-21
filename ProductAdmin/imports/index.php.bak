@@ -1,0 +1,1377 @@
+<?php
+ini_set('error_reporting', E_ALL);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+
+$host="localhost";
+$user="aquakomfru_thot";
+$password="PXXvOJNHFc";
+$db="aquakomfru_thot";
+$dbh = new PDO('mysql:host=localhost;dbname='.$db, $user, $password);
+$dbh->query("SET NAMES 'utf8'");
+
+
+/*
+DELETE FROM s_categories ;
+DELETE FROM s_products;
+DELETE FROM s_products_categories;
+DELETE FROM s_variants;
+DELETE FROM s_features;
+DELETE FROM s_categories_features;
+DELETE FROM s_orders;
+DELETE FROM s_orders_labels;
+
+
+c:\distr\cURL\bin\curl -F "importFile=@c:\elex\Sites\teplohot.ru\PRICE_ROST.csv" "http://teplohot.aktitest.ru/imports/" > log.txt
+
+ * */
+function Head()
+{
+?>
+
+<html lang="en">
+
+<html>
+<head>
+    <base href="http://teplohot.aktitest.ru/"/>
+    <title>загрузка каталога</title>
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="description" content="" />
+    <meta name="keywords"    content="Отопление" />
+
+    <!-- Bootstrap -->
+    <link href="/design/akticom_ru/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/design/akticom_ru/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="/design/akticom_ru/css/MainPage.css" rel="stylesheet" type="text/css">
+    <link href="/design/akticom_ru/css/catalog.css" rel="stylesheet" type="text/css">
+    <link href="/design/akticom_ru/css/SlideMenu.css" rel="stylesheet" type="text/css">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="/design/akticom_ru/js/bootstrap.min.js"></script>
+
+
+</head>
+<body>
+    <?php
+}
+
+
+function footer()
+{
+    ?>
+</body>
+</html>
+ <?php
+}
+
+
+
+//Парсит свойства товара
+function ParseFeature($f)
+{
+    if($f!="")
+    {
+    //Удаляем херь из строки
+    $temp=str_replace("<p>", ";", $f);
+
+    $temp=str_replace("</p>", ";", $temp);
+
+    $temp=str_replace(";;", ";", $temp);
+
+    $temp=str_replace(" :", ":", $temp);
+
+    $temp=str_replace(": ", ":", $temp);
+
+    //разбиваем на с\масив
+    $temp=explode(";",$temp);
+    //делаем хэш-матрицу
+
+    for($i=0;$i<count($temp);$i++)
+    {
+        $kk=explode(":",$temp[$i]);
+        if(isset($kk[1])) $tmp[$kk[0]]=$kk[1];
+    }
+    return $tmp;
+    }
+    else return null;
+
+}
+
+
+//Удаляет артикул из названия
+function RemoveArticle($s)
+{
+    $pos = strpos($s, ' ');
+    return substr($s, $pos+1);
+
+}
+
+function cp1251_to_utf8 ($txt)  {
+    $in_arr = array (
+        chr(208), chr(192), chr(193), chr(194),
+        chr(195), chr(196), chr(197), chr(168),
+        chr(198), chr(199), chr(200), chr(201),
+        chr(202), chr(203), chr(204), chr(205),
+        chr(206), chr(207), chr(209), chr(210),
+        chr(211), chr(212), chr(213), chr(214),
+        chr(215), chr(216), chr(217), chr(218),
+        chr(219), chr(220), chr(221), chr(222),
+        chr(223), chr(224), chr(225), chr(226),
+        chr(227), chr(228), chr(229), chr(184),
+        chr(230), chr(231), chr(232), chr(233),
+        chr(234), chr(235), chr(236), chr(237),
+        chr(238), chr(239), chr(240), chr(241),
+        chr(242), chr(243), chr(244), chr(245),
+        chr(246), chr(247), chr(248), chr(249),
+        chr(250), chr(251), chr(252), chr(253),
+        chr(254), chr(255)
+    );
+
+    $out_arr = array (
+        chr(208).chr(160), chr(208).chr(144), chr(208).chr(145),
+        chr(208).chr(146), chr(208).chr(147), chr(208).chr(148),
+        chr(208).chr(149), chr(208).chr(129), chr(208).chr(150),
+        chr(208).chr(151), chr(208).chr(152), chr(208).chr(153),
+        chr(208).chr(154), chr(208).chr(155), chr(208).chr(156),
+        chr(208).chr(157), chr(208).chr(158), chr(208).chr(159),
+        chr(208).chr(161), chr(208).chr(162), chr(208).chr(163),
+        chr(208).chr(164), chr(208).chr(165), chr(208).chr(166),
+        chr(208).chr(167), chr(208).chr(168), chr(208).chr(169),
+        chr(208).chr(170), chr(208).chr(171), chr(208).chr(172),
+        chr(208).chr(173), chr(208).chr(174), chr(208).chr(175),
+        chr(208).chr(176), chr(208).chr(177), chr(208).chr(178),
+        chr(208).chr(179), chr(208).chr(180), chr(208).chr(181),
+        chr(209).chr(145), chr(208).chr(182), chr(208).chr(183),
+        chr(208).chr(184), chr(208).chr(185), chr(208).chr(186),
+        chr(208).chr(187), chr(208).chr(188), chr(208).chr(189),
+        chr(208).chr(190), chr(208).chr(191), chr(209).chr(128),
+        chr(209).chr(129), chr(209).chr(130), chr(209).chr(131),
+        chr(209).chr(132), chr(209).chr(133), chr(209).chr(134),
+        chr(209).chr(135), chr(209).chr(136), chr(209).chr(137),
+        chr(209).chr(138), chr(209).chr(139), chr(209).chr(140),
+        chr(209).chr(141), chr(209).chr(142), chr(209).chr(143)
+    );
+
+    $txt = str_replace($in_arr,$out_arr,$txt);
+    return $txt;
+}
+
+function flush_buffers(){
+    ob_end_flush();
+    ob_flush();
+    flush();
+    ob_start();
+}
+
+function InsertFeature($s,$product_id,$category_id)
+{
+    global $dbh;
+    $features=ParseFeature($s);
+    if($features!=null)
+    {
+        echo  "feat";
+        var_dump($features);
+    foreach ($features as $key => $value) {
+        if($key!="")
+        {
+            // - 1 - ищем уже такое свойство
+            $sql="SELECT count(*) cc FROM s_features WHERE name='$key'";
+            foreach($dbh->query($sql) as $row) {
+                $IsFeature=$row['cc']+0;
+            }
+            echo  $sql." ++<br/>";
+
+            //если такого свойства нету то вставлем
+            if($IsFeature==0)
+            {
+                $sql="INSERT INTO `s_features` (`id`, `name`, `position`)
+                        VALUES (NULL, '".$key."', '1');";
+                echo  $sql." ++<br/>";
+                $dbh->query($sql);
+                $feature_id = $dbh->lastInsertId();
+            }
+            else
+            {
+                //ищем ID сво-ва
+                $sql="SELECT *  FROM s_features WHERE name='$key'";
+                foreach($dbh->query($sql) as $row) {
+                    $feature_id=$row['id']+0;
+                }
+            }
+
+            // - 2 - вставляем значение поля для товара
+            $sql="INSERT INTO `s_options` (`product_id`, `feature_id`, `value`)
+                        VALUES ($product_id, $feature_id, '$value');";
+            echo  $sql." ++<br/>";
+            $dbh->query($sql);
+
+            // - 3 - вставляем значение поля для категории
+            // - 1 - ищем уже такое свойство
+            $sql="SELECT count(*) cc FROM s_categories_features WHERE (feature_id='$feature_id')and(category_id='$category_id')";
+            foreach($dbh->query($sql) as $row) {
+                $IsFeature=$row['cc']+0;
+            }
+            echo  $sql." ++<br/>";
+            if($IsFeature==0)
+            {
+                $sql="INSERT INTO `s_categories_features` (`category_id`, `feature_id`)
+                        VALUES ($category_id, $feature_id);";
+                echo  $sql." ++<br/>";
+                $dbh->query($sql);
+
+            }
+
+        }
+
+
+    }
+    }
+
+}
+
+
+
+function GetCountGr($name)
+{
+    global $dbh;
+    $sql="select count(*) cc from s_categories where name='".$name."';";
+   // echo  $sql." ++<br/>";
+
+    foreach($dbh->query($sql) as $row) {
+        //echo  $sql. " ++ ".$row['cc']. " ++<br/>";
+        return $row['cc']+0;
+    }
+
+}
+
+function GetCountBr($name,$parent)
+{
+    global $dbh;
+    $sql="select count(*) cc from s_categories where name='".$name."';";
+    echo  $sql." ++<br/>";
+
+    foreach($dbh->query($sql) as $row) {
+        echo  $sql. " ++ ".$row['cc']. " ++<br/>";
+        return $row['cc']+0;
+    }
+
+}
+
+
+
+
+function rus2translit($string) {
+    $converter = array(
+        'а' => 'a',   'б' => 'b',   'в' => 'v',
+        'г' => 'g',   'д' => 'd',   'е' => 'e',
+        'ё' => 'e',   'ж' => 'zh',  'з' => 'z',
+        'и' => 'i',   'й' => 'y',   'к' => 'k',
+        'л' => 'l',   'м' => 'm',   'н' => 'n',
+        'о' => 'o',   'п' => 'p',   'р' => 'r',
+        'с' => 'c',   'т' => 't',   'у' => 'u',
+        'ф' => 'f',   'х' => 'h',   'ц' => 'c',
+        'ч' => 'ch',  'ш' => 'sh',  'щ' => 'sch',
+        'ь' => '\'',  'ы' => 'y',   'ъ' => '\'',
+        'э' => 'e',   'ю' => 'yu',  'я' => 'ya',
+
+        'А' => 'A',   'Б' => 'B',   'В' => 'V',
+        'Г' => 'G',   'Д' => 'D',   'Е' => 'E',
+        'Ё' => 'E',   'Ж' => 'Zh',  'З' => 'Z',
+        'И' => 'I',   'Й' => 'Y',   'К' => 'K',
+        'Л' => 'L',   'М' => 'M',   'Н' => 'N',
+        'О' => 'O',   'П' => 'P',   'Р' => 'R',
+        'С' => 'C',   'Т' => 'T',   'У' => 'U',
+        'Ф' => 'F',   'Х' => 'H',   'Ц' => 'C',
+        'Ч' => 'Ch',  'Ш' => 'Sh',  'Щ' => 'Sch',
+        'Ь' => '\'',  'Ы' => 'Y',   'Ъ' => '\'',
+        'Э' => 'E',   'Ю' => 'Yu',  'Я' => 'Ya',
+    );
+    return strtr($string, $converter);
+}
+function encodestring($str) {
+    // переводим в транслит
+    $str = rus2translit($str);
+    // в нижний регистр
+    $str = strtolower($str);
+    // заменям все ненужное нам на "-"
+    $str = preg_replace('~[^-a-z0-9_]+~u', '-', $str);
+    // удаляем начальные и конечные '-'
+    $str = trim($str, "-");
+
+
+    return $str;
+}
+//Конвертирует заголовок:
+// - Удаляет страну производителя
+// - Удаляет капс
+function ConvertTitle($value)
+{
+    $tt=$value;
+
+    //Удаляем Капс
+    $tt=mb_strtoupper(mb_substr($value, 0, 1, 'UTF-8'), 'UTF-8') . mb_substr(mb_convert_case($value, MB_CASE_LOWER, 'UTF-8'), 1, mb_strlen($value), 'UTF-8');
+
+
+    //Удаляем страну
+
+    $pos = strpos($tt, '#');
+    if($pos!=0)     $tt = substr($tt, 0,$pos);
+    return $tt;
+}
+
+
+//c:\distr\cURL\bin>curl --form "importFile=@c:\elex\Sites\teplohot.ru\DES_CAT_SMP.csv" "http://teplohot.aktitest.ru/imports/"
+//curl --form importFile=@c:\elex\Sites\teplohot.ru\DES_CAT_SMP.csv "http://teplohot.aktitest.ru/imports/"
+//curl -X POST -H "Content-Type: multipart/form-data" http://teplohot.aktitest.ru/imports/ -d importFile=@c:/elex/Sites/teplohot.ru/DES_CAT_SMP.csv
+
+
+//curl -i -X POST -H "Content-Type: multipart/form-data" -F "file=@c:/elex/Sites/teplohot.ru/DES_CAT_SMP.csv" "http://teplohot.aktitest.ru/imports/"
+
+
+
+
+//$curl -X POST -u  admin:admin "http://teplohot.aktitest.ru/imports/" -Hcontent-type:application/xml -d @c:/elex/Sites/teplohot.ru/DES_CAT_SMP.csv
+
+//    curl -u username:password -i -o c:/elex/Sites/teplohot.ru/DES_CAT_SMP.csv -Tc:/elex/Sites/teplohot.ru/DES_CAT_SMP.csv 'http://teplohot.aktitest.ru/imports/'
+
+
+/*
+
+curl -F "importFile=@c:\elex\Sites\teplohot.ru\DES_CAT_SMP.csv" "http://teplohot.aktitest.ru/imports/" > log.txt
+
+
+ */
+
+function Import_DC_IMS()
+{
+    global $dbh;
+
+    $today = date("Y-m-d_H_i_s");
+    echo "-------------------------------------------------------------------";
+    echo "*******************************************************************";
+    echo $today;
+    echo "*******************************************************************";
+    include "csv.php";
+
+    //var_dump($_FILES);
+    //var_dump($_POST);
+
+    $uploaddir = $_SERVER['DOCUMENT_ROOT'].'/imports/';
+    $uploadfile = $uploaddir . basename($_FILES['importFile']['name']);
+
+    echo  '<pre>';
+    if (move_uploaded_file($_FILES['importFile']['tmp_name'], $uploadfile)) {
+        echo  "Файл корректен и был успешно загружен.\n";
+        $bk_file= $uploaddir."history/".$today."_".$_SERVER['REMOTE_ADDR']."_".basename($_FILES['importFile']['name']);
+        echo $bk_file."<br>";
+        copy($uploadfile,$bk_file);
+        echo exec("gzip ".$bk_file)."<br>";
+        try {
+
+            echo "Открываем наш csv.<br>";
+            $csv = new CSV($uploadfile);
+
+            /**
+             * Чтение из CSV  (и вывод на экран)
+             */
+
+            $get_csv = $csv->getCSV();
+            foreach ($get_csv as $value) { //Проходим по строкам
+
+                //херим предыдущие (пока что)
+                //$dbh->query("TRUNCATE TABLE s_orders_labels;");
+                $value[0]=cp1251_to_utf8($value[0]);
+                $value[1]=cp1251_to_utf8($value[1]);
+                $value[2]=cp1251_to_utf8($value[2]);
+
+
+                // - 1 - ищем такую дисконтную карту
+                $d_id=0;
+                $sql = "select * from  s_coupons where (code='" . $value[0] . "');";
+                echo  $sql . " - 1 - ищем такую дисконтную карту<br>";
+                foreach ($dbh->query($sql) as $row) {
+                    $d_id = $row['id'] + 0;
+                }
+                if($d_id>0) //если такая есть:
+                {
+                    $sql="UPDATE s_coupons SET value = '".($value[1]+0)."' WHERE id = ".$d_id;
+                    echo $sql."<br>";
+                    $dbh->query($sql);
+                }else
+                {
+                    //вставляем новую
+                    $sql="INSERT INTO `s_coupons`
+        (`id`, `code`, `name`, `expire`, `type`, `value`, `min_order_price`, `single`, `usages`)
+         VALUES
+         (NULL, '".($value[0])."', '".($value[2])."', NULL, 'percentage', '".($value[1]+0)."',
+           '0', '0', '0');";
+                    //  echo  "Таких брендов нет, вставлям новый: ".$sql. "<br/>";
+                    $dbh->query($sql);
+                     echo  $sql."<br>";
+                }
+            }
+        }
+        catch (Exception $e) { //Если csv файл не существует, выводим сообщение
+            echo  "Ошибка: " . $e->getMessage();
+        }
+    } else {
+        echo  "Возможная атака с помощью файловой загрузки!\n";
+    }
+
+
+
+}
+
+function Insertcategory($s,$parent)
+{
+    global $dbh;
+
+    if($s!="")
+    {
+
+    $tt=explode(":",$s);
+    echo $s."<br>";;
+    //если все еще есть элементы
+    if ((count($tt)>0))
+    {
+        //проверяем 0 элемент
+       // echo  "ищем кол-во брендов с таким парентом<br>";
+        $sql="select count(*) cc from  s_categories
+        where (name='".$tt[0]."')AND(parent_id=".$parent.");";
+       // echo  $sql."<br>";
+        $cc=0;
+        foreach($dbh->query($sql) as $row)
+        {
+            $cc=$row['cc']+0;
+        }
+        //echo  "Кол0во брендов: ".$cc."<br>";
+        if($cc==0)
+        {
+            $sql="INSERT INTO `s_categories`
+        (`id`, `parent_id`, `name`, `meta_title`, `meta_keywords`, `meta_description`, `description`, `url`, `image`, `position`, `visible`, `external_id`)
+         VALUES
+         (NULL, '".$parent."', '".$tt[0]."', '".ConvertTitle($tt[0])."', '".$tt[0]."', '', '', '".encodestring($tt[0])."', '', '0', '1', '');";
+          //  echo  "Таких брендов нет, вставлям новый: ".$sql. "<br/>";
+            $dbh->query($sql);
+           // echo  $sql."<br>";
+            $l_id = $dbh->lastInsertId();
+
+
+        }
+        else
+
+        {
+            $sql="select id from  s_categories where
+             (name='".$tt[0]."')AND(parent_id=".$parent.");";
+            //echo  $sql."<br>";
+            foreach($dbh->query($sql) as $row) {
+                $l_id=$row['id'];
+            }
+        }
+        unset($tt[0]);
+        $tt=implode(":",$tt);
+        Insertcategory($tt,$l_id);
+    }
+    }
+}
+
+function Import_PRICE_ROST()
+{
+    global $dbh;
+
+    $today = date("Y-m-d_H_i_s");
+    echo "-------------------------------------------------------------------";
+    echo "*******************************************************************";
+    echo $today;
+    echo "*******************************************************************";
+    include "csv.php";
+
+    //var_dump($_FILES);
+    //var_dump($_POST);
+
+    $uploaddir = $_SERVER['DOCUMENT_ROOT'].'/imports/';
+    $uploadfile = $uploaddir . basename($_FILES['importFile']['name']);
+
+    echo  '<pre>';
+    if (move_uploaded_file($_FILES['importFile']['tmp_name'], $uploadfile)) {
+        echo  "Файл корректен и был успешно загружен.\n";
+        $bk_file= $uploaddir."history/".$today."_".$_SERVER['REMOTE_ADDR']."_".basename($_FILES['importFile']['name']);
+        echo $bk_file."<br>";
+        copy($uploadfile,$bk_file);
+        echo exec("gzip ".$bk_file)."<br>";
+        try {
+         //   $csv = new CSV($uploadfile); //Открываем наш csv
+            $csv = new CSV($uploadfile); //Открываем наш csv
+            /**
+             * Чтение из CSV  (и вывод на экран)
+             */
+
+            $get_csv = $csv->getCSV();
+
+            //много однотипных запросов база блокирует
+            $cat='';//имя категории
+
+
+
+            $dbh->query("TRUNCATE TABLE s_categories ;");
+
+            $dbh->query("TRUNCATE TABLE s_orders_labels;");
+            $dbh->query("TRUNCATE TABLE s_product_count;");
+            $dbh->query("TRUNCATE TABLE tem1;");
+
+            //Для полной очистки базы раскоментить
+            $dbh->query("TRUNCATE TABLE s_products;");
+            $dbh->query("TRUNCATE TABLE s_products_categories;");
+            $dbh->query("TRUNCATE TABLE s_variants;");
+            $dbh->query("TRUNCATE TABLE s_categories_features;");
+            $dbh->query("TRUNCATE TABLE s_features;");
+            $dbh->query("TRUNCATE TABLE s_orders;");
+            $dbh->query("TRUNCATE TABLE s_purchases;");
+
+
+            // - Заполнем категории -
+            foreach ($get_csv as $value) { //Проходим по строкам
+
+
+                $value[2]=cp1251_to_utf8($value[2]);
+                $value[3]=cp1251_to_utf8($value[3]);
+               // $value[4]=cp1251_to_utf8($value[4]);
+              //  $value[5]=cp1251_to_utf8($value[5]);
+                 $value[4]='';
+                  $value[5]='';
+                //Заполняем категории если таковых не имеем
+
+                //Заполняем пустоты
+                if($value[2]=="")
+                {
+                    $value[2]=$value[3];
+                    $value[3]=$value[4];
+                    $value[4]=$value[5];
+                    $value[5]="";
+
+                }
+
+                if($value[3]=="")
+                {
+                    $value[3]=$value[4];
+                    $value[4]=$value[5];
+                    $value[5]="";
+                }
+
+                if($value[4]=="")
+                {
+                    $value[4]=$value[5];
+                    $value[5]="";
+                }
+
+                // - 1 - ищем id группы
+
+
+
+               /// echo  "- Новая группа - ".$value[2]."<br>";
+                if(GetCountGr($value[2])>0)
+                {
+                    //echo "ищем id группы<br>";
+
+                    foreach($dbh->query("select id from  s_categories where name='".$value[2]."';") as $row) {
+                        $parrent=$row['id'];
+                    }
+                }
+                else
+                {
+                    $sql="INSERT INTO `s_categories`
+    (`id`, `parent_id`, `name`, `meta_title`, `meta_keywords`, `meta_description`, `description`, `url`, `image`, `position`, `visible`, `external_id`)
+     VALUES
+     (NULL, '0', '".($value[2])."', '".ConvertTitle($value[2])."', '".($value[2])."', '', '', '".encodestring($value[2])."', '', '0', '1', '');";
+                    //echo  $sql. "<br/>";
+                    $dbh->query($sql);
+                    $parrent = $dbh->lastInsertId();
+                }
+                echo "-----------------------------------------------------<br>";
+                echo $value[2].":".$value[3].":".$value[4].":".$value[5]."<br>";
+                Insertcategory($value[3].":".$value[4].":".$value[5],$parrent);
+            }
+/*
+                    if(GetCountGr($value[2])>0)
+                    {
+                        echo  "Такая группа есть<br>";
+                        //если такая группа есть, то ищем ее id потом ищем бренд с парентом id категории
+                        // $sql="select id from s_categories where name=''".cp1251_to_utf8($value[2])."'";
+                        //$row=$dbh->query($sql);
+
+                        //$sql="select count(*) cc from s_categories where parent_id=".$row['id'];
+                        // $row=$dbh->query($sql);
+
+
+
+                        echo "ищем id группы<br>";
+
+                        foreach($dbh->query("select id from  s_categories where name='".$value[2]."';") as $row) {
+                            $parrent=$row['id'];
+                        }
+                        Insertcategory($value[3].":".$value[4].":".$value[5],$parrent);
+                        echo  "ID=".$parrent."<br>";
+                        if($value[3]!="")
+                        {
+                                echo  "ищем кол-во брендов с таким парентом<br>";
+                                $sql="select count(*) cc from  s_categories where (name='".$value[3]."')AND(parent_id=".$parrent.");";
+                                echo  $sql."<br>";
+                                foreach($dbh->query($sql) as $row)
+                                {
+                                   $cc=$row['cc']+0;
+                                }
+                                echo  "Кол0во брендов: ".$cc."<br>";
+                                if($cc==0)
+                                {
+                                    $sql="INSERT INTO `s_categories`
+        (`id`, `parent_id`, `name`, `meta_title`, `meta_keywords`, `meta_description`, `description`, `url`, `image`, `position`, `visible`, `external_id`)
+         VALUES
+         (NULL, '".$parrent."', '".($value[3])."', '".ConvertTitle($value[3])."', '".($value[3])."', '', '', '".encodestring($value[3])."', '', '0', '1', '');";
+                                    echo  "Таких брендов нет, вставлям новый: ".$sql. "<br/>";
+                                    $dbh->query($sql);
+                                }
+                                else
+                                {
+
+                                    echo  "Такие бренды есть ищем категории<br>";
+
+                                    echo  "ищем id бренда<br>";
+                                    $sql = "select id from  s_categories where (name='" . $value[3] . "')AND(parent_id=" . $GrID . ");";
+                                    echo  $sql . "<br/>";
+                                    foreach ($dbh->query($sql) as $row) {
+                                        $BrID = $row['id'];
+                                    }
+                                    echo  "id=".$BrID;
+                                    if($value[4]!="")
+                                    {
+                                             // ищем кол-во категорий с таким парентом
+                                            $sql = "select count(*) cc from  s_categories where (name='" . $value[4] . "')AND(parent_id=" . $BrID . ");";
+                                            echo  $sql . " ищем кол-во категорий с таким парентом<br>";
+                                            foreach ($dbh->query($sql) as $row) {
+                                                $cc = $row['cc'] + 0;
+                                            }
+                                            echo  "Таких категорий: ".$cc."<br>";
+                                            if ($cc == 0) {
+                                                $sql = "INSERT INTO `s_categories`
+                    (`id`, `parent_id`, `name`, `meta_title`, `meta_keywords`, `meta_description`, `description`, `url`, `image`, `position`, `visible`, `external_id`)
+                     VALUES
+                     (NULL, '" . $BrID . "', '" . ($value[4]) . "', '" . ConvertTitle($value[4]) . "', '" . ($value[4]) . "', '', '', '".encodestring($value[4])."', '', '0', '1', '');";
+                                                echo  $sql . "<br/>";
+                                                $dbh->query($sql);
+                                            }
+                                    }
+                                }
+                        }
+
+                    }
+                    else
+                    {
+                        // если такой нет то вставляем такую группу, потом такой бренд, потом такю категорию
+                        //потом вставляем товар
+                        if($value[2]!="")
+                        {
+
+                            $sql="INSERT INTO `s_categories`
+    (`id`, `parent_id`, `name`, `meta_title`, `meta_keywords`, `meta_description`, `description`, `url`, `image`, `position`, `visible`, `external_id`)
+     VALUES
+     (NULL, '0', '".($value[2])."', '".ConvertTitle($value[2])."', '".($value[2])."', '', '', '".encodestring($value[2])."', '', '0', '1', '');";
+                            echo  $sql. "<br/>";
+                            $dbh->query($sql);
+                            $cat=$value[2];
+
+                            $lastId = $dbh->lastInsertId();
+
+                            if($value[3]!="")
+                            {
+                                $sql="INSERT INTO `s_categories`
+        (`id`, `parent_id`, `name`, `meta_title`, `meta_keywords`, `meta_description`, `description`, `url`, `image`, `position`, `visible`, `external_id`)
+         VALUES
+         (NULL, '".$lastId."', '".($value[3])."', '".ConvertTitle($value[3])."', '".($value[3])."', '', '', '".encodestring($value[3])."', '', '0', '1', '');";
+                                echo  $sql. "<br/>";
+                                $dbh->query($sql);
+
+                                $lastId = $dbh->lastInsertId();
+                                if($value[4]!="")
+                                {
+                                    $sql="INSERT INTO `s_categories`
+            (`id`, `parent_id`, `name`, `meta_title`, `meta_keywords`, `meta_description`, `description`, `url`, `image`, `position`, `visible`, `external_id`)
+             VALUES
+             (NULL, '".$lastId."', '".($value[4])."', '".ConvertTitle($value[4])."', '".($value[4])."', '', '', '".encodestring($value[4])."', '', '0', '1', '');";
+                                    echo  $sql. "<br/>";
+                                    $dbh->query($sql);
+                                    echo  '********************** '.$cat." *****************************";
+                                }
+                            // mysql_query($sql);
+                            }
+                        }
+                    }
+                }
+
+*/
+
+
+
+
+
+
+            // - Заполнем товары -
+            // - Все категории уже заполнены
+
+            $count=0;
+            foreach ($get_csv as $value) { //Проходим по строкам
+
+                $value[0]=cp1251_to_utf8($value[0]);
+                $value[1]=cp1251_to_utf8($value[1]);
+                $value[2]=cp1251_to_utf8($value[2]);
+                $value[3]=cp1251_to_utf8($value[3]);
+                $value[4]=cp1251_to_utf8($value[4]);
+                $value[5]=cp1251_to_utf8($value[5]);
+                $value[6]=cp1251_to_utf8($value[6])+0;
+                $value[7]=cp1251_to_utf8($value[7])+0;
+                $value[8]=cp1251_to_utf8($value[8]);
+
+                echo "<br><br> -----------  товар ".$value[1]." ----------------------<br>";
+
+                //Заполняем пустоты
+                if($value[2]=="")
+                {
+                    $value[2]=$value[3];
+                    $value[3]=$value[4];
+                    $value[4]="";
+
+                }
+
+                if($value[3]=="")
+                {
+                    $value[3]=$value[4];
+                    $value[4]="";
+                }
+
+                $sku=$value[0];//артикл
+
+                if($value[2]!="")
+                {
+                    echo "ищем id группы<br>";
+
+                    foreach($dbh->query("select id from  s_categories where name='".$value[2]."';") as $row) {
+                        $GrID=$row['id'];
+                        $parent=$GrID;//получили id атегории товара
+                    }
+                    if($value[3]!="")
+                    {
+                        echo  "ищем id бренда<br>";
+                        $sql = "select id from  s_categories where (name='" . $value[3] . "')AND(parent_id=" . $GrID . ");";
+                        echo  $sql . "<br/>";
+                        foreach ($dbh->query($sql) as $row) {
+                            $BrID = $row['id'];
+                        }
+                        echo  "id=".$BrID;
+                        $parent=$BrID;//получили id атегории товара
+                        if($value[4]!="")
+                        {
+                            echo  "ищем id категории<br>";
+                            $sql = "select id from  s_categories where (name='" . $value[4] . "')AND(parent_id=" . $BrID . ");";
+                            echo  $sql . "<br/>";
+                            foreach ($dbh->query($sql) as $row) {
+                                $CatID = $row['id'];
+                            }
+                            echo  "id=".$CatID;
+                            $parent=$CatID; //получили id атегории товара
+                            if($value[5]!="")
+                            {
+                                echo  "ищем id категории<br>";
+                                $sql = "select id from  s_categories where (name='" . $value[5] . "')AND(parent_id=" . $parent . ");";
+                                echo  $sql . "<br/>";
+                                foreach ($dbh->query($sql) as $row) {
+                                    $CatID = $row['id'];
+                                }
+                                echo  "id=".$CatID;
+                                $parent=$CatID; //получили id атегории товара
+                            }
+                        }
+
+                    }
+                }
+
+                echo "Ищем по артикулу уже занесенный товар и обновляем запись по нему". "<br/>";
+                $sql="
+                select p.id id from s_products p
+                join s_variants v
+                on
+                v.product_id= p.id
+                where v.sku like '".$sku."'";
+                echo $sql. "<br/>";
+                $product_id=0;
+                foreach ($dbh->query($sql) as $row) {
+                    $product_id = $row['id'];
+                    echo $row['id']."<br>";
+                }
+                $category_id=$parent;
+
+                if($product_id==0)
+                {
+
+                    echo " - такого товара нету -". "<br/>";
+                    echo " - Вставляем товар -". "<br/>";
+                    $sql="INSERT INTO `s_products` (`id`, `url`, `name`) VALUES (NULL, '".encodestring(RemoveArticle($value[1]))."', '".RemoveArticle($value[1])."');";
+                    echo  $sql . "<br/>";
+                    $dbh->query($sql);
+                    $lastId = $dbh->lastInsertId();
+                    $product_id=$lastId;
+
+                    echo "ID товара = ".$product_id."<br>";
+                    echo "Категория товара = ".$category_id."<br>";
+
+                    //вставляем категорию
+
+                    $sql="INSERT INTO `s_products_categories` (`product_id`, `category_id`) VALUES ('".$product_id."', '".$category_id."');";
+                    echo  $sql . "<br/>";
+                    $dbh->query($sql);
+
+                    //вставляем цену и кол-во
+
+                    //высчитываем общее кол-во
+                    echo "кОЛ-ВО: ".$value[8]."<br>";
+                    echo "Цена: ".$value[7]."<br>";
+                    $stock=ParseFeature($value[8]);
+                    $stockV=0;
+                    $sql="DELETE FROM s_product_count where product_id=".$product_id;
+                    $dbh->query($sql);
+                    foreach ($stock as $key1=>$value1)
+                    {
+                        $sql_count="INSERT INTO `s_product_count` (`id`, `product_id`, `filial_id`, `stock`)
+                        VALUES (NULL, '".$product_id."', (select id from s_filials where keycod='".$key1."'),
+                         '".$value1."');";
+                        echo $sql_count . "<br/>";
+                        $dbh->query($sql_count);
+                        $stockV=$stockV+($value1+0);
+                    }
+
+                    if($stockV==0) $stockV="NULL";
+                    else  $stockV="'".$stockV."'";
+                    ;
+
+                    $sql="DELETE FROM s_variants where product_id=".$product_id;
+                    $dbh->query($sql);
+                    $sql="INSERT INTO `s_variants` (`id`, `product_id`, `sku`, `price`, `stock`)
+                        VALUES (NULL, '".$product_id."', '".$value[0]."', '".($value[7]+0)."', ".$stockV.");";
+                    echo  $sql . "<br/>";
+                    $dbh->query($sql);
+                    $count++;
+
+                    echo  "-------------------------------------------------------------". "<br/>";
+                    echo  "Вставляем свойства товара". "<br/>";
+                    $value[11]=cp1251_to_utf8($value[11]);
+                    InsertFeature($value[11],$product_id,$category_id);
+                    echo  "////////////////////////////////////////////////////////////";
+
+                }
+                else
+                {
+                    echo "Обновляем все свойства товара <br>";
+                    echo "ID товара = ".$product_id."<br>";
+                    echo "Категория товара = ".$category_id."<br>";
+
+                    //вставляем категорию
+
+                    $sql="INSERT INTO `s_products_categories` (`product_id`, `category_id`) VALUES ('".$product_id."', '".$category_id."');";
+                    echo  $sql . "<br/>";
+                    $dbh->query($sql);
+
+                    //высчитываем общее кол-во
+                    echo "кОЛ-ВО: ".$value[8]."<br>";
+                    echo "Цена: ".$value[7]."<br>";
+                    $stock=ParseFeature($value[8]);
+                    $stockV=0;
+                    foreach ($stock as $key1=>$value1)
+                    {
+
+
+
+                        $sql_count="INSERT INTO `s_product_count` (`id`, `product_id`, `filial_id`, `stock`)
+                        VALUES (NULL, '".$product_id."', (select id from s_filials where keycod='".$key1."'),
+                         '".$value1."');";
+
+                        echo $sql_count . "<br/>";
+                        $dbh->query($sql_count);
+
+
+                        $stockV=$stockV+($value1+0);
+                    }
+
+
+
+                    echo "Общее количество: ".$stockV."<br>";
+
+                    echo "Обновляем цену и общее кол-во.<br>";
+
+                    $count++;
+                    if($stockV==0) $stockV="NULL";
+                     else  $stockV="'".$stockV."'";
+                    ;
+                    $sql="UPDATE s_variants SET price = '".($value[7]+0)."', stock = ".$stockV." WHERE id = ".$product_id;
+                    echo $sql."<br>";
+                    $dbh->query($sql);
+                    echo  "-------------------------------------------------------------". "<br/>";
+                    echo  "Вставляем свойства товара". "<br/>";
+                    $value[11]=cp1251_to_utf8($value[11]);
+                    InsertFeature($value[11],$product_id,$category_id);
+                    echo  "////////////////////////////////////////////////////////////";
+
+                }
+
+                //временная таблица для отбора старых товаров, которые удалили из бызы
+                $sql_t="INSERT INTO `tem1` (`kk`,`sku`) VALUES ('$product_id','$sku');";
+                echo $sql_t . "<br/>";
+                $dbh->query($sql_t);
+                print_r($dbh->errorInfo());
+            }
+           // $dbh->query('UPDATE `s_variants` SET `sku` = REPLACE(`sku`,"С","C" )');
+
+
+            //Убираем товары которые на загрузились
+
+            foreach ($get_csv as $value)
+            {
+                $art=$value[0];
+                $dbh->query('INSERT INTO `tem1` (`id`) VALUES ("$art")');
+
+
+                $sql="select p.id id from s_products p
+                join s_variants v
+                on
+                v.product_id= p.id where v.sku like '".$art."'";
+                echo $sql. "<br/>";
+            }
+
+            //Удаляем записи которые не были загружены из файла
+
+             $sql="
+                delete from s_products
+                where id in
+
+                (
+                select id from (
+                select
+                   -- p.name,
+                   -- v.sku,
+                   -- t.kk,
+                   -- t.sku sku2
+                    *
+                    from s_products p
+                left join tem1 t
+                on t.kk = p.id
+                -- join s_variants v
+                -- on v.product_id=p.id
+                ) d  where kk is null
+                )
+";
+            echo $sql."<br>";
+            $dbh->query($sql);
+
+        }
+        catch (Exception $e) { //Если csv файл не существует, выводим сообщение
+            echo  "Ошибка: " . $e->getMessage();
+        }
+    } else {
+        echo  "Возможная атака с помощью файловой загрузки!\n";
+    }
+
+    echo "<h3>Кол-во загруженных товаров: ".$count."</h3>";
+    echo  'Некоторая отладочная информация:';
+   // print_r($_FILES);
+
+    print "</pre>";
+}
+
+//загрузка списка филиалов
+function Import_Filial()
+{
+    global $dbh;
+
+    $today = date("Y-m-d_H_i_s");
+    echo "-------------------------------------------------------------------";
+    echo "*******************************************************************";
+    echo $today;
+    echo "*******************************************************************";
+    include "csv.php";
+
+    //var_dump($_FILES);
+    //var_dump($_POST);
+
+    $uploaddir = $_SERVER['DOCUMENT_ROOT'].'/imports/';
+    $uploadfile = $uploaddir . basename($_FILES['importFile']['name']);
+
+    echo  '<pre>';
+    if (move_uploaded_file($_FILES['importFile']['tmp_name'], $uploadfile)) {
+        echo  "Файл корректен и был успешно загружен.\n";
+        $bk_file= $uploaddir."history/".$today."_".$_SERVER['REMOTE_ADDR']."_".basename($_FILES['importFile']['name']);
+        echo $bk_file."<br>";
+        copy($uploadfile,$bk_file);
+        try {
+                //   $csv = new CSV($uploadfile); //Открываем наш csv
+                $csv = new CSV($uploadfile); //Открываем наш csv
+                $get_csv = $csv->getCSV();
+                $dbh->query("TRUNCATE TABLE s_filials;");
+                foreach ($get_csv as $value) { //Проходим по строкам
+                    /*
+                                    echo  "Код: " . cp1251_to_utf8($value[0]) . "<br/>";
+                                    echo  "Наименование кат: " .cp1251_to_utf8($value[1])  . "<br/>";
+                    */
+
+                    $value[0]=cp1251_to_utf8(mysql_escape_string($value[0]));
+                    $value[1]=cp1251_to_utf8(mysql_escape_string($value[1]));
+                    $value[2]=cp1251_to_utf8(mysql_escape_string($value[2]));
+                    $value[3]=cp1251_to_utf8(mysql_escape_string($value[3]));
+                    $value[4]=cp1251_to_utf8(mysql_escape_string($value[4]));
+                    $value[5]=cp1251_to_utf8(mysql_escape_string($value[5]));
+                    $value[6]=cp1251_to_utf8(mysql_escape_string($value[6]));
+
+                    if($value[0]!="КОД")
+                    {
+                        $sql="INSERT INTO `s_filials`
+        (`id`, `keycod`, `caption`, `address`, `timework`, `email`, `phone`, `person`)
+         VALUES
+         (NULL
+         , '".$value[0]."'
+         , '".$value[1]."'
+         , '".$value[2]."'
+         , '".$value[3]."'
+         , '".$value[4]."'
+         , '".$value[5]."'
+         , '".$value[6]."'
+
+          );";
+                        echo  "Вставляем филиал: <br/>";
+                        echo  $sql. "<br/>";
+                        $dbh->query($sql);
+                        $sql_d="INSERT INTO `s_delivery` (`id`, `name`, `description`, `free_from`, `price`, `enabled`, `position`, `separate_payment`)
+VALUES (NULL, '".$value[1]."', '', '0', '0', '1', '0', NULL);
+                  );";
+                        $dbh->query($sql_d);
+                        echo $sql_d."<br>";
+                    }
+
+
+            }
+
+        }
+        catch (Exception $e) { //Если csv файл не существует, выводим сообщение
+            echo  "Ошибка: " . $e->getMessage();
+        }
+    } else {
+        echo  "Возможная атака с помощью файловой загрузки!\n";
+    }
+}
+
+function Import_DOSTAVKA()
+{
+    global $dbh;
+
+    $today = date("Y-m-d_H_i_s");
+    echo "-------------------------------------------------------------------";
+    echo "*******************************************************************";
+    echo $today;
+    echo "*******************************************************************";
+    include "csv.php";
+
+    //var_dump($_FILES);
+    //var_dump($_POST);
+
+    $uploaddir = $_SERVER['DOCUMENT_ROOT'].'/imports/';
+    $uploadfile = $uploaddir . basename($_FILES['importFile']['name']);
+
+    echo  '<pre>';
+    if (move_uploaded_file($_FILES['importFile']['tmp_name'], $uploadfile)) {
+        echo  "Файл корректен и был успешно загружен.\n";
+        $bk_file= $uploaddir."history/".$today."_".$_SERVER['REMOTE_ADDR']."_".basename($_FILES['importFile']['name']);
+        echo $bk_file."<br>";
+        copy($uploadfile,$bk_file);
+        try {
+            //   $csv = new CSV($uploadfile); //Открываем наш csv
+            $csv = new CSV($uploadfile); //Открываем наш csv
+            $get_csv = $csv->getCSV();
+             $sql="";
+             $sql_d="";
+            $dbh->query("TRUNCATE TABLE s_dostavka;");
+            $dbh->query("TRUNCATE TABLE s_delivery_payment;");
+            $dbh->query("TRUNCATE TABLE s_delivery;");
+            foreach ($get_csv as $value) { //Проходим по строкам
+                /*
+                                echo  "Код: " . cp1251_to_utf8($value[0]) . "<br/>";
+                                echo  "Наименование кат: " .cp1251_to_utf8($value[1])  . "<br/>";
+                */
+
+                $value[0]=cp1251_to_utf8(mysql_escape_string($value[0]));
+                $value[1]=cp1251_to_utf8(mysql_escape_string($value[1]))+0;
+
+
+
+                $sql.="INSERT INTO `s_dostavka`
+                (`id`, `place`, `price`)
+                 VALUES
+                 (NULL
+                 , '".$value[0]."'
+                 , '".$value[1]."'
+                  );";
+
+                $sql_d="INSERT INTO `s_delivery` (`id`, `name`, `description`, `free_from`, `price`, `enabled`, `position`, `separate_payment`)
+VALUES (NULL, '".$value[0]."', '', '1000000', '".$value[1]."', '1', '0', '0');
+                  );";
+                $dbh->query($sql_d);
+                echo $sql_d."<br>";
+                $lastId = $dbh->lastInsertId();
+                $sql_dp="INSERT INTO `s_delivery_payment` (`delivery_id`, `payment_method_id`) VALUES ('$lastId', '1');";
+                $dbh->query($sql_dp);echo $sql_dp."<br>";
+
+                $sql_dp="INSERT INTO `s_delivery_payment` (`delivery_id`, `payment_method_id`) VALUES ('$lastId', '13');";
+                $dbh->query($sql_dp);echo $sql_dp."<br>";
+                $sql_dp="INSERT INTO `s_delivery_payment` (`delivery_id`, `payment_method_id`) VALUES ('$lastId', '14');";
+                $dbh->query($sql_dp);echo $sql_dp."<br>";
+
+            }
+            $dbh->query($sql);
+
+            $sql_d="INSERT INTO `s_delivery` (`id`, `name`, `description`, `free_from`, `price`, `enabled`, `position`, `separate_payment`)
+VALUES (0, 'Экспресс доставка', '', '1000000', '500', '1', '0', '0');";
+
+            $dbh->query($sql_d);
+            $sql_d="UPDATE `s_delivery` SET `id` = '1000' WHERE `name` = 'Экспресс доставка';";
+            $dbh->query($sql_d);
+            $sql_dp="INSERT INTO `s_delivery_payment` (`delivery_id`, `payment_method_id`) VALUES ('1000', '1');";
+            $dbh->query($sql_dp);echo $sql_dp."<br>";
+
+            $sql_dp="INSERT INTO `s_delivery_payment` (`delivery_id`, `payment_method_id`) VALUES ('1000', '13');";
+            $dbh->query($sql_dp);echo $sql_dp."<br>";
+            $sql_dp="INSERT INTO `s_delivery_payment` (`delivery_id`, `payment_method_id`) VALUES ('1000', '14');";
+            $dbh->query($sql_dp);echo $sql_dp."<br>";
+        }
+        catch (Exception $e) { //Если csv файл не существует, выводим сообщение
+            echo  "Ошибка: " . $e->getMessage();
+        }
+    } else {
+        echo  "Возможная атака с помощью файловой загрузки!\n";
+    }
+
+}
+
+function UploadImage()
+{
+    $uploaddir = $_SERVER['DOCUMENT_ROOT'].'/files/goods/';
+    $FileName=rus2translit(basename($_FILES['importFile']['name']));
+
+    echo "Start UPLOAD :".$FileName;
+
+    if (move_uploaded_file($_FILES['importFile']['tmp_name'], $uploaddir.$FileName)) {
+       // echo  "Файл корректен и был успешно загружен.\n";
+        include('classSimpleImage.php');
+        $image = new SimpleImage();
+        $image->load($uploaddir.$FileName);
+        $image->resizeToWidth(250);
+        $image->save($uploaddir."250_".$FileName);
+
+        $image->resizeToWidth(100);
+        $image->save($uploaddir."100_".$FileName);
+
+        echo "UPLOAD $FileName DONE";
+
+    }
+
+
+}
+
+
+function GetOrders()
+{
+    global $dbh;
+/*
+    echo   json_encode(array("caption"=>"GetOrders"));
+
+    $sql="SELECT id,name FROM s_payment_methods where enabled=1";
+    foreach($dbh->query($sql) as $row) {
+        echo "<pre>";
+
+        echo   json_encode($row);
+        echo "</pre>";
+    }*/
+    $sql='SELECT
+o.name,
+o.address,
+o.phone,
+o.email,
+o.date,
+o.id order_id,
+p.product_name,
+p.price,
+p.amount,
+p.sku
+,o.status
+
+
+FROM s_purchases p
+join s_orders o
+on o.id=p.order_id
+
+where o.status < 2';
+
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename=data.csv');
+
+// create a file pointer connected to the output stream
+    $output = fopen('php://output', 'w');
+
+// output the column headings
+    fputcsv($output, array('name', 'address', 'phone', 'email', 'date', 'order_id', 'product_name', 'price', 'amount', 'sku','status'),";"," ");
+    foreach($dbh->query($sql) as $row) {
+
+        $tt['name']= iconv("utf-8", "windows-1251", $row['name']);
+        $tt['address']= iconv("utf-8", "windows-1251", $row['address']);
+        $tt['phone']= iconv("utf-8", "windows-1251", $row['phone']);
+        $tt['email']= iconv("utf-8", "windows-1251", $row['email']);
+        $tt['date']= iconv("utf-8", "windows-1251", $row['date']);
+        $tt['order_id']= iconv("utf-8", "windows-1251", $row['order_id']);
+        $tt['product_name']= iconv("utf-8", "windows-1251", $row['product_name']);
+        $tt['price']= iconv("utf-8", "windows-1251", $row['price']);
+        $tt['amount']= iconv("utf-8", "windows-1251", $row['amount']);
+        $tt['sku']= iconv("utf-8", "windows-1251", $row['sku']);
+
+        if($row['status']=='0')
+        {
+            $tt['status']= iconv("utf-8", "windows-1251", 'Новый');
+        }
+        else
+        {
+            $tt['status']= iconv("utf-8", "windows-1251", 'Оплачен');
+        }
+
+
+       fputcsv($output, $tt,";"," ");
+
+    }
+
+    fclose($output);
+
+}
+
+
+function GetUsers()
+{
+    global $dbh;
+    /*
+    echo   json_encode(array("caption"=>"GetOrders"));
+
+    $sql="SELECT id,name FROM s_payment_methods where enabled=1";
+    foreach($dbh->query($sql) as $row) {
+        echo "<pre>";
+
+        echo   json_encode($row);
+        echo "</pre>";
+    }*/
+    $sql='SELECT * FROM s_users';
+
+    header('Content-Type: text/csv; charset=utf-8');
+    header('Content-Disposition: attachment; filename=data.csv');
+
+// create a file pointer connected to the output stream
+    $output = fopen('php://output', 'w');
+
+// output the column headings
+    fputcsv($output, array('name', 'address', 'phone', 'email', 'coupon', 'enabled'),";"," ");
+    foreach($dbh->query($sql) as $row) {
+
+        $tt['name']= iconv("utf-8", "windows-1251", $row['name']);
+        $tt['address']= iconv("utf-8", "windows-1251", $row['address']);
+        $tt['phone']= iconv("utf-8", "windows-1251", $row['phone']);
+        $tt['email']= iconv("utf-8", "windows-1251", $row['email']);
+        $tt['coupon']= iconv("utf-8", "windows-1251", $row['coupon']);
+        $tt['enabled']= iconv("utf-8", "windows-1251", $row['enabled']);
+
+        fputcsv($output, $tt,";"," ");
+
+    }
+
+    fclose($output);
+
+}
+if(!empty($_FILES))
+{
+    if(basename($_FILES['importFile']['name'])=="PRICE_ROST.csv")
+    {
+        Head();
+        Import_PRICE_ROST();
+        footer();
+    }
+    elseif(basename($_FILES['importFile']['name'])=="DC_IMS.csv")
+    {
+        Head();
+        Import_DC_IMS();
+        footer();
+    }
+    elseif(basename($_FILES['importFile']['name'])=="FILIAL.csv")
+    {
+        Head();
+        Import_Filial();
+        footer();
+    }
+    elseif(basename($_FILES['importFile']['name'])=="DOSTAVKA.csv")
+    {
+        Head();
+        Import_DOSTAVKA();
+        footer();
+    }
+    else
+    {
+
+        UploadImage();
+    }
+}
+elseif(isset($_GET['action'])and($_GET['action']=="GetOrders"))
+{
+    GetOrders();
+}
+elseif(isset($_GET['action'])and($_GET['action']=="GetUsers"))
+{
+    GetUsers();
+}
+
+else
+{
+    Head();
+?>
+
+<div class="container">
+    <form enctype="multipart/form-data" method="POST">
+        <input type="hidden" name="action" value="import">
+
+        <div class="form-group">
+            <label>Файл для загрузки</label>
+            <input type="file" name="importFile">
+            <p class="help-block">Загрузите файл PRICE_ROST.csv :</p>
+        </div>
+
+        <button type="submit" class="btn btn-default">Загрузить</button>
+    </form>
+
+</div>
+<?php
+    footer();
+}
+?>
+
+
