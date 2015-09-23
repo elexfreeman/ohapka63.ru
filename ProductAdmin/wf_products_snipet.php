@@ -82,6 +82,15 @@ order by p.articul";
 $sk=0;
 
 ?>
+
+<script>
+    //close-modal
+    $(document).ready(function(){
+      /*  $( ".close-modal" ).click(function() {
+            $( ".modal-dialog" ).fadeOut("slow");
+        });*/
+    });
+</script>
  <div class="products-container">
 <?php
 foreach ($modx->query($sql) as $row) {
@@ -92,22 +101,7 @@ foreach ($modx->query($sql) as $row) {
         <?php
     }*/
     $sk++;
-    /*todo: Сделать модальное окно для карточки овара. Взять с сайта 24bukety.ru*/
 
-    ?>
-
-    <!-- Modal -->
-<div style="display: none"  class="modal fade modalProduct" id="ProductModal_<?php echo $row['id']; ?>" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog  modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-        
-      </div>
-      <div class="modal-body">
-        <h3 class="modal-title" id="myModalLabel"><?php echo $row['title']; ?></h3>
-        <div class="row">
-            <?php
             $i=0;
             $sql_mainimg = "select * from s_prices pr
                                             join s_products p
@@ -124,15 +118,48 @@ foreach ($modx->query($sql) as $row) {
             foreach ($modx->query($sql_mainimg) as $rowIMain) {
                 $images[$i]=$rowIMain['filename'];
                 $i++;;
-               // echo upload_dir . $rowIMain['filename'];
+                // echo upload_dir . $rowIMain['filename'];
             }
 
-            ?>
+    ?>
+    <!-- Modal -->
+    <div class="modal fade modalProduct" id="ProductModal_<?php echo $row['id']; ?>" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog  modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
 
-            <div class="col-sm-8 col-xs-8"><img src="<?php echo upload_dir . $images[0];?>" class="img-responsive center-block modal-main-img "></div>
-            <div class="col-sm-4 col-xs-4">
-            <?php
-                           $nn=1;
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h3 class="modal-title modal-head-h3 " id="myModalLabel"><?php echo $row['title']; ?></h3>
+                </div>
+                <div class="modal-body">
+
+                    <div class="row">
+                        <?php
+                        $i=0;
+                        $sql_mainimg = "select * from s_prices pr
+                                            join s_products p
+                                            on p.id=pr.product_id
+
+                                            join s_images i
+                                            on i.price_id=pr.id
+
+
+                                            where (p.id=" . $row['id'] . ")and(i.mainimg<>1)
+                                            order by i.filename
+                                            ;";
+                        //echo $sql_mainimg;
+                        foreach ($modx->query($sql_mainimg) as $rowIMain) {
+                            $images[$i]=$rowIMain['filename'];
+                            $i++;;
+                            // echo upload_dir . $rowIMain['filename'];
+                        }
+
+                        ?>
+
+                        <div class="col-sm-8 col-xs-8"><img src="<?php echo upload_dir . $images[0];?>" class="img-responsive center-block modal-main-img "></div>
+                        <div class="col-sm-4 col-xs-4">
+                            <?php
+                            $nn=1;
                             foreach ($images as $key=>$img) {
                                 if($key!=0)
                                 {
@@ -142,59 +169,69 @@ foreach ($modx->query($sql) as $row) {
                                 }
                             }
                             ?>
-            </div>
-                 
-                          
-        </div>
-        <h4 class="modal-description">Описание букета</h4>
-        <p><?php echo $row['description']; ?></p>
-        <h4 class="modal-sostav">Состав букета</h4>
-        <?php 
-        $sql_pr="select id from s_prices where product_id=".$row['id']." limit 1 ";
-        
-         $sql="select * from s_buket_flowers  b
+                        </div>
+
+
+                    </div>
+                    <h4 class="modal-h4">Описание букета</h4>
+                    <p class="modal-discription"><?php echo $row['description']; ?></p>
+                    <h4 class="modal-h4">Состав букета</h4>
+                    <p class="modal-discription">
+                    <?php
+                    $sql_pr="select id from s_prices where product_id=".$row['id']." limit 1 ";
+
+                    $sql="select * from s_buket_flowers  b
 
 join s_flowers f
 on f.id=b.flower_id
 
 where b.price_id=($sql_pr);";
-        $tmp='';
-        foreach($modx->query($sql) as $rowI)
-        
-        {
-            $quantity=$rowI['f_count']+0;
-            if($quantity>0)
-            {
-                $tmp.=$rowI['title']." ".$rowI['f_count']." шт, ";
-            }
-            else
-            {
-                $tmp.=$rowI['title'].", ";
-            }
+                    $tmp='';
+                    foreach($modx->query($sql) as $rowI)
 
-        }
-        echo substr($tmp, 0, -2);;
-        ?>
-          <div class="modal-price">Цена: <?php
-              $sql_mainimg = "select * from s_prices pr
+                    {
+                        $quantity=$rowI['f_count']+0;
+                        if($quantity>0)
+                        {
+                            $tmp.=$rowI['title']." ".$rowI['f_count']." шт, ";
+                        }
+                        else
+                        {
+                            $tmp.=$rowI['title'].", ";
+                        }
+
+                    }
+                    echo substr($tmp, 0, -2);;
+                    ?></p>
+
+                    <div class="w-clearfix modal-price">
+                        <div class="modal-price-text">Цена: <span class="price-digit"> <?php
+                                $sql_mainimg = "select * from s_prices pr
                                             join s_products p
                                             on p.id=pr.product_id
                                             where (p.id=" . $row['id'] . ")and(pr.active=1);";
-              foreach ($modx->query($sql_mainimg) as $rowIMain) {
-                  $priceRUB = $rowIMain['rub'];
-              }
-              echo $priceRUB;
-?><img class="img-rub" src='/img/rub-004.png'></div>
-        <div class="row footer-product"  >
-        <button  type="button" class="btn  btn-success  btn-lg "   onclick="AddToCard(<?php echo $row['id']; ?>,1)">
-                                <img src="img/korzina-ico.png "> КУПИТЬ</button>
+                                foreach ($modx->query($sql_mainimg) as $rowIMain) {
+                                    $priceRUB = $rowIMain['rub'];
+                                }
+                                echo $priceRUB;
+                                ?></span></div>
+                        <img class="rub modal-1"
+                             src="https://daks2k3a4ib2z.cloudfront.net/55f3e76d11da8d083ed6dac1/55f9c8ee124ed81e107bba91_rub-003.png">
+                    </div>
+
+                    <div class="w-clearfix modal-button">
+                        <img class="modal-button-img"
+                          src="https://daks2k3a4ib2z.cloudfront.net/55f3e76d11da8d083ed6dac1/55f9cb98cf2ceee924b2e5b2_korzina-ico.png">
+
+                        <div onclick="AddToCard(<?php echo $row['id']; ?>,1)">КУПИТЬ</div>
+                    </div>
+
+
+                </div>
+
+            </div>
         </div>
-        
-      </div>
-      
     </div>
-  </div>
-</div>
 
 
 
@@ -223,7 +260,9 @@ where b.price_id=($sql_pr);";
     }
     ?>
     <div class="w-clearfix product">
-        <img    onclick="$('#ProductModal_<?php echo $row['id']; ?>').modal('show')"
+        <img    o1nclick="$('#ProductModal_<?php echo $row['id']; ?>').fadeIn('slow');"
+                oncl3ick="$('#ProductModal_<?php echo $row['id']; ?>').modal('show')"
+                data-toggle="modal" data-target="#ProductModal_<?php echo $row['id']; ?>"
                 class="product-img-main" src="<?php echo $MainImg; ?>">
 
         <div class="product-title">

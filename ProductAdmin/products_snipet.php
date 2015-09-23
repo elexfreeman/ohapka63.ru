@@ -211,7 +211,8 @@ where b.price_id=($sql_pr);";
 
 
                             ?>
-                <div class="panel-body click product-img" onclick="$('#ProductModal_<?php echo $row['id']; ?>').modal('show')" style="
+                <div class="panel-body click product-img"
+                     onclick="$('#ProductModal_<?php echo $row['id']; ?>').modal('show')" style="
                 background: url('<?php echo $MainImg; ?>');
 ">
                 <!--
