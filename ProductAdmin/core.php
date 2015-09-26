@@ -1238,7 +1238,7 @@ class Eblazavrik
     </div>
 
 
-    <label>Сезоны</label>
+    <label>Категории букетов</label>
     <?php
         if(isset($_GET['product_id']))
         {

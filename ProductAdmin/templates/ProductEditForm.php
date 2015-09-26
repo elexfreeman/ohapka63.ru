@@ -333,15 +333,15 @@ where p.id=".mysql_escape_string($_GET['product_id'])." order by price.id
                     <input placeholder="52" class="spec_form" type="text" name="p_count" value="0">
                     <label><input type="checkbox" name="flag" <?php if($row['flag']==1) echo " checked "; ?>> Всегда в наличии</label>
                 </div>
-<!--
-                <div class='sezon'>
+
+                <div class='sezon' style="margin-top:20px;">
                     <div class="checkbox">
                         <label>
                             <input type="checkbox"> Check me out
                         </label>
                     </div>
                 </div>
-
+<!--
                 <div class='b_styles'>
                     <label>Стили</label>
 
